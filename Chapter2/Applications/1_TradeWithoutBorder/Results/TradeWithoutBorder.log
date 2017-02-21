@@ -1,0 +1,299 @@
+-----------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\Reiter\Projects\WTO_Guides\Advanced Guide to TPA\Chapter2\Applicati
+> ons/1_TradeWithoutBorder/Results/TradeWithoutBorder.log
+  log type:  text
+ opened on:  21 Feb 2017, 10:54:29
+
+. ssc install ppml
+checking ppml consistency and verifying not already installed...
+installing into c:\ado\plus\...
+installation complete.
+
+. findit esstab
+
+. ssc install esstab
+ssc install: "esstab" not found at SSC, type search esstab
+(To find all packages at SSC that start with e, type ssc describe e)
+r(601);
+
+. findit esttab
+
+. ssc install esttab
+ssc install: "esttab" not found at SSC, type search esttab
+(To find all packages at SSC that start with e, type ssc describe e)
+r(601);
+
+. use "Datasets/Chapter2Application1.dta", clear
+
+. keep if year == 2006
+(95,220 observations deleted)
+
+. generate ln_DIST = ln(DIST)
+
+. generate INTL_BRDR = 1
+
+. replace INTL_BRDR = 0 if exporter == importer
+(69 real changes made)
+
+. bysort exporter: egen Y = sum(trade)
+
+. bysort importer: egen E = sum(trade)
+
+. gen E_R_BLN = E if importer == "DEU"
+(4,692 missing values generated)
+
+. replace exporter = "ZZZ" if exporter == "DEU"
+(69 real changes made)
+
+. replace importer = "ZZZ" if importer == "DEU"
+(69 real changes made)
+
+. egen E_R = mean(E_R_BLN)
+
+. quietly tabulate exporter, gen(EXPORTER_FE)
+
+. quietly tabulate importer, gen(IMPORTER_FE)
+
+. quietly ds EXPORTER_FE*
+
+. ds
+exporter      EXPORTER_~12  EXPORTER_~38  EXPORTER_~64  IMPORTER_~21  IMPORTER_~47
+importer      EXPORTER_~13  EXPORTER_~39  EXPORTER_~65  IMPORTER_~22  IMPORTER_~48
+pair_id       EXPORTER_~14  EXPORTER_~40  EXPORTER_~66  IMPORTER_~23  IMPORTER_~49
+year          EXPORTER_~15  EXPORTER_~41  EXPORTER_~67  IMPORTER_~24  IMPORTER_~50
+trade         EXPORTER_~16  EXPORTER_~42  EXPORTER_~68  IMPORTER_~25  IMPORTER_~51
+DIST          EXPORTER_~17  EXPORTER_~43  EXPORTER_~69  IMPORTER_~26  IMPORTER_~52
+CNTG          EXPORTER_~18  EXPORTER_~44  IMPORTER_FE1  IMPORTER_~27  IMPORTER_~53
+LANG          EXPORTER_~19  EXPORTER_~45  IMPORTER_FE2  IMPORTER_~28  IMPORTER_~54
+CLNY          EXPORTER_~20  EXPORTER_~46  IMPORTER_FE3  IMPORTER_~29  IMPORTER_~55
+ln_DIST       EXPORTER_~21  EXPORTER_~47  IMPORTER_FE4  IMPORTER_~30  IMPORTER_~56
+INTL_BRDR     EXPORTER_~22  EXPORTER_~48  IMPORTER_FE5  IMPORTER_~31  IMPORTER_~57
+Y             EXPORTER_~23  EXPORTER_~49  IMPORTER_FE6  IMPORTER_~32  IMPORTER_~58
+E             EXPORTER_~24  EXPORTER_~50  IMPORTER_FE7  IMPORTER_~33  IMPORTER_~59
+E_R_BLN       EXPORTER_~25  EXPORTER_~51  IMPORTER_FE8  IMPORTER_~34  IMPORTER_~60
+E_R           EXPORTER_~26  EXPORTER_~52  IMPORTER_FE9  IMPORTER_~35  IMPORTER_~61
+EXPORTER_FE1  EXPORTER_~27  EXPORTER_~53  IMPORTER_~10  IMPORTER_~36  IMPORTER_~62
+EXPORTER_FE2  EXPORTER_~28  EXPORTER_~54  IMPORTER_~11  IMPORTER_~37  IMPORTER_~63
+EXPORTER_FE3  EXPORTER_~29  EXPORTER_~55  IMPORTER_~12  IMPORTER_~38  IMPORTER_~64
+EXPORTER_FE4  EXPORTER_~30  EXPORTER_~56  IMPORTER_~13  IMPORTER_~39  IMPORTER_~65
+EXPORTER_FE5  EXPORTER_~31  EXPORTER_~57  IMPORTER_~14  IMPORTER_~40  IMPORTER_~66
+EXPORTER_FE6  EXPORTER_~32  EXPORTER_~58  IMPORTER_~15  IMPORTER_~41  IMPORTER_~67
+EXPORTER_FE7  EXPORTER_~33  EXPORTER_~59  IMPORTER_~16  IMPORTER_~42  IMPORTER_~68
+EXPORTER_FE8  EXPORTER_~34  EXPORTER_~60  IMPORTER_~17  IMPORTER_~43  IMPORTER_~69
+EXPORTER_FE9  EXPORTER_~35  EXPORTER_~61  IMPORTER_~18  IMPORTER_~44
+EXPORTER_~10  EXPORTER_~36  EXPORTER_~62  IMPORTER_~19  IMPORTER_~45
+EXPORTER_~11  EXPORTER_~37  EXPORTER_~63  IMPORTER_~20  IMPORTER_~46
+
+. help ds
+
+. global N = `: word count `r(varlist)''
+
+. global N_1 = $N - 1
+
+. display $N
+153
+
+. display $N_1
+152
+
+. save "Datasets/1_TradeWithoutBorder.dta", replace
+file Datasets/1_TradeWithoutBorder.dta saved
+
+. ppml trade EXPORTER_FE* IMPORTER_FE1-IMPORTER_FE$N_1 ln_DIST CNTG INTL_BRDR, iter
+> (30) noconst
+variable IMPORTER_FE152 not found
+r(111);
+
+. quietly ds EXPORTER_FE*
+
+. global N = `: word count `r(varlist)''
+
+. global N_1 = $N - 1
+
+. display "N: $N"
+N: 69
+
+. display "N: $N, N - 1: $N_1"
+N: 69, N - 1: 68
+
+. save "Datasets/1_TradeWithoutBorder.dta", replace
+file Datasets/1_TradeWithoutBorder.dta saved
+
+. ppml trade EXPORTER_FE* IMPORTER_FE1-IMPORTER_FE$N_1 ln_DIST CNTG INTL_BRDR, iter
+> (30) noconst
+
+note: checking the existence of the estimates
+WARNING: trade has very large values, consider rescaling
+
+Number of regressors excluded to ensure that the estimates exist: 0
+Number of observations excluded: 0
+
+note: starting ppml estimation
+note: trade has noninteger values
+
+Iteration 1:   deviance =  1.78e+07
+Iteration 2:   deviance =   7913079
+Iteration 3:   deviance =   5301891
+Iteration 4:   deviance =   4693310
+Iteration 5:   deviance =   4566430
+Iteration 6:   deviance =   4544764
+Iteration 7:   deviance =   4542391
+Iteration 8:   deviance =   4542209
+Iteration 9:   deviance =   4542202
+Iteration 10:  deviance =   4542202
+Iteration 11:  deviance =   4542202
+
+Number of parameters: 140
+Number of observations: 4761
+Pseudo log-likelihood: -2284121.5
+R-squared: .99450921
+Option strict is: off
+-------------------------------------------------------------------------------
+              |               Robust
+        trade |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+--------------+----------------------------------------------------------------
+ EXPORTER_FE1 |   16.60491   .3493025    47.54   0.000     15.92029    17.28953
+ EXPORTER_FE2 |   17.83091     .36177    49.29   0.000     17.12185    18.53996
+ EXPORTER_FE3 |   16.66352   .3251375    51.25   0.000     16.02627    17.30078
+ EXPORTER_FE4 |   17.37391   .2703218    64.27   0.000     16.84409    17.90373
+ EXPORTER_FE5 |   15.30641   .4508218    33.95   0.000     14.42281       16.19
+ EXPORTER_FE6 |   14.28203   .7465285    19.13   0.000     12.81886     15.7452
+ EXPORTER_FE7 |   18.33749   .3586955    51.12   0.000     17.63446    19.04052
+ EXPORTER_FE8 |   17.97164   .3566482    50.39   0.000     17.27263    18.67066
+ EXPORTER_FE9 |   17.10287   .3142596    54.42   0.000     16.48694    17.71881
+EXPORTER_FE10 |   17.08444   .3450405    49.51   0.000     16.40817    17.76071
+EXPORTER_FE11 |   19.70242   .3734998    52.75   0.000     18.97037    20.43447
+EXPORTER_FE12 |    14.0853   .7232015    19.48   0.000     12.66785    15.50274
+EXPORTER_FE13 |   16.22317   .4432229    36.60   0.000     15.35447    17.09187
+EXPORTER_FE14 |    15.0739   .3086675    48.84   0.000     14.46892    15.67888
+EXPORTER_FE15 |    14.6152   .4749875    30.77   0.000     13.68424    15.54616
+EXPORTER_FE16 |   16.35408   .2966391    55.13   0.000     15.77268    16.93548
+EXPORTER_FE17 |   15.07311   .4827429    31.22   0.000     14.12695    16.01926
+EXPORTER_FE18 |   15.66195   .4375672    35.79   0.000     14.80433    16.51956
+EXPORTER_FE19 |   17.81386   .3191922    55.81   0.000     17.18825    18.43946
+EXPORTER_FE20 |   16.83303    .318389    52.87   0.000       16.209    17.45706
+EXPORTER_FE21 |   18.14915     .30707    59.10   0.000      17.5473    18.75099
+EXPORTER_FE22 |   17.80401   .3156436    56.41   0.000     17.18536    18.42266
+EXPORTER_FE23 |   16.15001   .3786785    42.65   0.000     15.40782    16.89221
+EXPORTER_FE24 |    13.9315   .4789954    29.08   0.000     12.99269    14.87031
+EXPORTER_FE25 |    16.3734   .3511761    46.62   0.000     15.68511    17.06169
+EXPORTER_FE26 |   17.70986   .3774273    46.92   0.000     16.97012    18.44961
+EXPORTER_FE27 |   18.24981   .3997167    45.66   0.000     17.46638    19.03324
+EXPORTER_FE28 |   16.83779   .3463683    48.61   0.000     16.15892    17.51666
+EXPORTER_FE29 |   16.60016   .5265954    31.52   0.000     15.56805    17.63227
+EXPORTER_FE30 |   14.56011   .5506977    26.44   0.000     13.48077    15.63946
+EXPORTER_FE31 |   16.30981   .3439283    47.42   0.000     15.63573     16.9839
+EXPORTER_FE32 |   18.27444   .3132267    58.34   0.000     17.66052    18.88835
+EXPORTER_FE33 |   15.24496    .474175    32.15   0.000     14.31559    16.17432
+EXPORTER_FE34 |   19.22102   .3470882    55.38   0.000     18.54074     19.9013
+EXPORTER_FE35 |   14.86346   .6509878    22.83   0.000     13.58754    16.13937
+EXPORTER_FE36 |   18.33801   .3416151    53.68   0.000     17.66845    19.00756
+EXPORTER_FE37 |   14.71105   .2926852    50.26   0.000      14.1374    15.28471
+EXPORTER_FE38 |   15.95794   .4318769    36.95   0.000     15.11147     16.8044
+EXPORTER_FE39 |   12.80838    .402993    31.78   0.000     12.01853    13.59823
+EXPORTER_FE40 |   15.70681   .4704749    33.39   0.000     14.78469    16.62892
+EXPORTER_FE41 |   17.65423   .3913745    45.11   0.000     16.88715    18.42131
+EXPORTER_FE42 |   13.61976   .2752868    49.47   0.000      13.0802    14.15931
+EXPORTER_FE43 |   15.90924   .7625362    20.86   0.000      14.4147    17.40378
+EXPORTER_FE44 |   13.78759   .3751277    36.75   0.000     13.05236    14.52283
+EXPORTER_FE45 |   13.49052   .7585371    17.78   0.000     12.00381    14.97722
+EXPORTER_FE46 |   17.87364   .3677878    48.60   0.000     17.15279    18.59449
+EXPORTER_FE47 |   11.80212   .5479175    21.54   0.000     10.72822    12.87602
+EXPORTER_FE48 |   16.80369   .4545298    36.97   0.000     15.91283    17.69455
+EXPORTER_FE49 |   17.13411   .3316833    51.66   0.000     16.48403     17.7842
+EXPORTER_FE50 |   16.51128   .3743444    44.11   0.000     15.77758    17.24498
+EXPORTER_FE51 |   14.07617   .8759933    16.07   0.000     12.35925    15.79309
+EXPORTER_FE52 |   13.99772   .4516941    30.99   0.000     13.11242    14.88302
+EXPORTER_FE53 |   16.94477   .3445521    49.18   0.000     16.26946    17.62008
+EXPORTER_FE54 |   17.04844    .325791    52.33   0.000      16.4099    17.68698
+EXPORTER_FE55 |   16.36691   .3332745    49.11   0.000      15.7137    17.02011
+EXPORTER_FE56 |     14.513   .2838859    51.12   0.000     13.95659     15.0694
+EXPORTER_FE57 |   16.17411   .3732897    43.33   0.000     15.44247    16.90574
+EXPORTER_FE58 |   13.83473   .7577192    18.26   0.000     12.34963    15.31984
+EXPORTER_FE59 |   16.71723   .9654007    17.32   0.000     14.82508    18.60938
+EXPORTER_FE60 |   17.26953   .3051264    56.60   0.000     16.67149    17.86757
+EXPORTER_FE61 |   17.40599   .3496508    49.78   0.000     16.72069    18.09129
+EXPORTER_FE62 |   15.02977   .3144761    47.79   0.000     14.41341    15.64613
+EXPORTER_FE63 |   15.31083   .4495869    34.06   0.000     14.42966    16.19201
+EXPORTER_FE64 |    17.3897   .3533766    49.21   0.000      16.6971    18.08231
+EXPORTER_FE65 |   13.69583   .5954839    23.00   0.000     12.52871    14.86296
+EXPORTER_FE66 |   14.92209   .4884463    30.55   0.000     13.96475    15.87943
+EXPORTER_FE67 |   19.38116   .3430338    56.50   0.000     18.70883    20.05349
+EXPORTER_FE68 |   17.44773   .3444917    50.65   0.000     16.77254    18.12292
+EXPORTER_FE69 |   18.59357   .3084987    60.27   0.000     17.98892    19.19821
+ IMPORTER_FE1 |  -1.514718   .1802421    -8.40   0.000    -1.867986    -1.16145
+ IMPORTER_FE2 |   .0643156    .157542     0.41   0.683    -.2444611    .3730924
+ IMPORTER_FE3 |  -1.569417   .2253161    -6.97   0.000    -2.011029   -1.127806
+ IMPORTER_FE4 |  -.9040841   .1145337    -7.89   0.000    -1.128566   -.6796021
+ IMPORTER_FE5 |  -2.674132   .3016715    -8.86   0.000    -3.265397   -2.082866
+ IMPORTER_FE6 |  -3.441229   .4672289    -7.37   0.000     -4.35698   -2.525477
+ IMPORTER_FE7 |   .1088941   .1703536     0.64   0.523    -.2249928     .442781
+ IMPORTER_FE8 |   .1298355   .2026253     0.64   0.522    -.2673027    .5269737
+ IMPORTER_FE9 |  -1.188351    .166685    -7.13   0.000    -1.515048   -.8616546
+IMPORTER_FE10 |  -1.188892   .1672461    -7.11   0.000    -1.516689   -.8610961
+IMPORTER_FE11 |   .6295692   .1608039     3.92   0.000     .3143993    .9447391
+IMPORTER_FE12 |   -3.80912   .5131393    -7.42   0.000    -4.814855   -2.803386
+IMPORTER_FE13 |  -1.458422   .2474264    -5.89   0.000    -1.943369   -.9734756
+IMPORTER_FE14 |  -2.815454   .1914405   -14.71   0.000     -3.19067   -2.440237
+IMPORTER_FE15 |  -2.990089   .2571143   -11.63   0.000    -3.494023   -2.486154
+IMPORTER_FE16 |  -1.832701   .1409367   -13.00   0.000    -2.108932    -1.55647
+IMPORTER_FE17 |  -2.349947   .2349395   -10.00   0.000     -2.81042   -1.889474
+IMPORTER_FE18 |  -2.182975   .2497422    -8.74   0.000     -2.67246   -1.693489
+IMPORTER_FE19 |  -.0698733   .1356114    -0.52   0.606    -.3356667    .1959202
+IMPORTER_FE20 |  -1.528946   .1540683    -9.92   0.000    -1.830915   -1.226978
+IMPORTER_FE21 |  -.0341986   .1125898    -0.30   0.761    -.2548705    .1864733
+IMPORTER_FE22 |  -.0969452   .1551978    -0.62   0.532    -.4011273    .2072369
+IMPORTER_FE23 |  -1.445561   .1878479    -7.70   0.000    -1.813736   -1.077386
+IMPORTER_FE24 |  -.3235312   .1831638    -1.77   0.077    -.6825257    .0354632
+IMPORTER_FE25 |  -1.820646   .1981327    -9.19   0.000    -2.208979   -1.432313
+IMPORTER_FE26 |  -.7554282   .2254822    -3.35   0.001    -1.197365   -.3134912
+IMPORTER_FE27 |  -.1310058   .2474574    -0.53   0.597    -.6160134    .3540018
+IMPORTER_FE28 |    -1.9753   .2457309    -8.04   0.000    -2.456924   -1.493676
+IMPORTER_FE29 |   -1.25844   .3131459    -4.02   0.000    -1.872195   -.6446855
+IMPORTER_FE30 |  -3.235263   .3360226    -9.63   0.000    -3.893855   -2.576671
+IMPORTER_FE31 |  -1.963442    .209735    -9.36   0.000    -2.374515   -1.552369
+IMPORTER_FE32 |  -.0099205   .1370849    -0.07   0.942     -.278602     .258761
+IMPORTER_FE33 |  -2.697078   .3222447    -8.37   0.000    -3.328666    -2.06549
+IMPORTER_FE34 |   .0935945   .1623147     0.58   0.564    -.2245365    .4117254
+IMPORTER_FE35 |  -2.803825   .3529878    -7.94   0.000    -3.495668   -2.111982
+IMPORTER_FE36 |   -.750206   .1697857    -4.42   0.000     -1.08298   -.4174321
+IMPORTER_FE37 |  -2.926986   .1725786   -16.96   0.000    -3.265233   -2.588738
+IMPORTER_FE38 |  -2.246515   .2947642    -7.62   0.000    -2.824242   -1.668788
+IMPORTER_FE39 |   -4.62332     .21987   -21.03   0.000    -5.054257   -4.192383
+IMPORTER_FE40 |  -2.157259   .2925557    -7.37   0.000    -2.730657    -1.58386
+IMPORTER_FE41 |  -.2038591   .2248556    -0.91   0.365    -.6445678    .2368497
+IMPORTER_FE42 |  -4.064258   .1677648   -24.23   0.000    -4.393071   -3.735446
+IMPORTER_FE43 |  -2.487271   .6433249    -3.87   0.000    -3.748165   -1.226378
+IMPORTER_FE44 |   -3.96605   .2247117   -17.65   0.000    -4.406477   -3.525624
+IMPORTER_FE45 |  -4.492891   .5763724    -7.80   0.000     -5.62256   -3.363222
+IMPORTER_FE46 |  -.8556499   .1846403    -4.63   0.000    -1.217538   -.4937617
+IMPORTER_FE47 |   -5.57594   .2564402   -21.74   0.000    -6.078554   -5.073326
+IMPORTER_FE48 |  -1.087498    .268516    -4.05   0.000    -1.613779    -.561216
+IMPORTER_FE49 |  -1.163682   .2051026    -5.67   0.000    -1.565675   -.7616879
+IMPORTER_FE50 |  -1.442383   .2081308    -6.93   0.000    -1.850312   -1.034455
+IMPORTER_FE51 |  -4.206933   .7250273    -5.80   0.000     -5.62796   -2.785905
+IMPORTER_FE52 |  -2.360625   .2675013    -8.82   0.000    -2.884918   -1.836332
+IMPORTER_FE53 |  -1.687268   .1967981    -8.57   0.000    -2.072985   -1.301551
+IMPORTER_FE54 |  -1.090798    .165991    -6.57   0.000    -1.416135   -.7654618
+IMPORTER_FE55 |  -1.502891   .1738132    -8.65   0.000    -1.843558   -1.162223
+IMPORTER_FE56 |  -2.716405   .1689223   -16.08   0.000    -3.047486   -2.385323
+IMPORTER_FE57 |  -1.730165   .2054888    -8.42   0.000    -2.132916   -1.327414
+IMPORTER_FE58 |  -3.573326   .3736887    -9.56   0.000    -4.305742   -2.840909
+IMPORTER_FE59 |  -2.379168   .9824421    -2.42   0.015    -4.304719   -.4536171
+IMPORTER_FE60 |  -1.152133    .133472    -8.63   0.000    -1.413733   -.8905327
+IMPORTER_FE61 |  -1.289584   .2152479    -5.99   0.000    -1.711462   -.8677058
+IMPORTER_FE62 |  -3.222779   .2031012   -15.87   0.000     -3.62085   -2.824707
+IMPORTER_FE63 |  -2.687256   .3038144    -8.85   0.000    -3.282721   -2.091791
+IMPORTER_FE64 |  -.5950676   .1795679    -3.31   0.001    -.9470142   -.2431209
+IMPORTER_FE65 |  -3.807465   .2726858   -13.96   0.000     -4.34192   -3.273011
+IMPORTER_FE66 |  -3.102945   .3429514    -9.05   0.000    -3.775117   -2.430773
+IMPORTER_FE67 |   1.891485   .1720149    11.00   0.000     1.554342    2.228628
+IMPORTER_FE68 |  -.6430001   .1536825    -4.18   0.000    -.9442124   -.3417879
+      ln_DIST |  -.7912879   .0501494   -15.78   0.000     -.889579   -.6929968
+         CNTG |   .6736456   .1073719     6.27   0.000     .4632006    .8840906
+    INTL_BRDR |   -2.47445   .1193816   -20.73   0.000    -2.708434   -2.240467
+-------------------------------------------------------------------------------
+
+. predict tradehat_BLN, mu
+
