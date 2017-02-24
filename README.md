@@ -10,3 +10,12 @@ here: http://vi.unctad.org/tpa/web/vol2/vol2home.html
 
 I add the R code (as currently there is only STATA code) for some of
 the applications. Contributions are very welcome!
+
+Already "translated" scripts
+--------------------
+
+- Trade without Borders
+
+![][Chapter2/Applications/1_TradeWithoutBorder/Results/scatter_rGDP_output.png]
+
+![][Chapter2/Applications/1_TradeWithoutBorder/Results/scatter_trade_output.png]
