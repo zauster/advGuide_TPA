@@ -11,7 +11,7 @@
 * was saved. 
 
 
-	global input	"D:\Reiter\Projects\WTO_Guides\Advanced Guide to TPA"		
+global input	"D:\Reiter\Projects\WTO_Guides\Advanced Guide to TPA"		
 /*	If you work with Windows and you have extracted the material on the "driveletter" drive 	*/
 
 
